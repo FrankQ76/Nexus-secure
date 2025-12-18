@@ -1,0 +1,8 @@
+{
+  "name": "Nexus P2P Secure Chat",
+  "description": "A high-performance peer-to-peer video and text chat application for secure, direct browser-to-browser communication.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
