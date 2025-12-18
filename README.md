@@ -1,20 +1,28 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Nexus P2P Secure Chat
 
-# Run and deploy your AI Studio app
+Nexus is a high-performance, browser-based peer-to-peer (P2P) communication platform. It allows users to establish direct, secure connections for video conferencing and instant messaging without the need for centralized data servers.
 
-This contains everything you need to run your app locally.
+## Key Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Xo1DLyd0CdZh7-7LIm3DWxgz5V_zl_ci
+- **True Peer-to-Peer**: Media and message data are transmitted directly between browsers using WebRTC.
+- **End-to-End Privacy**: Because there is no middleman server handling your data, your conversations remain private.
+- **Direct Video & Audio**: Low-latency streaming for clear and responsive communication.
+- **Encrypted Messaging**: Secure text chat alongside video calls.
+- **Zero Configuration**: No account creation required. Simply share your unique Nexus ID to start a session.
 
-## Run Locally
+## How It Works
 
-**Prerequisites:**  Node.js
+1.  **Signaling**: The application uses a signaling server only to help peers discover each other and exchange connection metadata.
+2.  **Handshake**: Once the metadata is exchanged, the browsers establish a direct P2P link.
+3.  **Data Flow**: After the handshake, all video, audio, and chat data flows directly through the P2P connection, bypassing external servers.
 
+## Built With
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **React**: Modern UI components and state management.
+- **Tailwind CSS**: Responsive and high-fidelity styling.
+- **PeerJS**: Simplified WebRTC implementation for peer discovery and data channels.
+- **Lucide**: Clean and intuitive iconography.
+
+## Security
+
+Nexus prioritizes user privacy. By leveraging P2P technology, the platform ensures that sensitive communication data is never stored or processed by a third party. The application only requires access to your camera and microphone during an active session.

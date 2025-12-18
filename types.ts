@@ -1,7 +1,6 @@
-
 export interface Message {
   id: string;
-  sender: 'me' | 'peer' | 'ai';
+  sender: 'me' | 'peer';
   text: string;
   timestamp: number;
 }
