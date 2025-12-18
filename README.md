@@ -25,4 +25,7 @@ Nexus is a high-performance, browser-based peer-to-peer (P2P) communication plat
 
 ## Security
 
-Nexus prioritizes user privacy. By leveraging P2P technology, the platform ensures that sensitive communication data is never stored or processed by a third party. The application only requires access to your camera and microphone during an active session.
+Nexus prioritizes user privacy. All communication is protected by mandatory encryption:
+- **Media Encryption**: Audio and video streams are encrypted using **SRTP** (Secure Real-time Transport Protocol).
+- **Key Exchange**: Connection handshakes are secured via **DTLS** (Datagram Transport Layer Security).
+- **Data Privacy**: No intermediate servers store or process your conversation content. The application only requires access to your camera and microphone during an active session.

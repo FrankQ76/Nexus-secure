@@ -34,7 +34,7 @@ const VideoWindow: React.FC<VideoWindowProps> = ({ localStream, remoteStream, is
             ref={remoteRef}
             autoPlay 
             playsInline 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover gpu-accelerated"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
@@ -58,13 +58,18 @@ const VideoWindow: React.FC<VideoWindowProps> = ({ localStream, remoteStream, is
             autoPlay 
             muted 
             playsInline 
-            className="w-full h-full object-cover mirror-x"
+            className="w-full h-full object-cover mirror-x gpu-accelerated"
           />
         )}
       </div>
 
       <style>{`
         .mirror-x { transform: scaleX(-1); }
+        .gpu-accelerated {
+          will-change: transform;
+          backface-visibility: hidden;
+          transform: translateZ(0); /* Force 3D compositing */
+        }
       `}</style>
     </div>
   );
