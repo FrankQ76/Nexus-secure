@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  base: '/Nexus-secure/',
   server: {
     port: 6969,
     host: '0.0.0.0',
