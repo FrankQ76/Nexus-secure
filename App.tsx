@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Peer } from 'peerjs';
+import Peer, { DataConnection, MediaConnection } from 'peerjs';
 import { Message, PeerState, MediaState } from './types';
-import { 
-  Video, 
-  VideoOff, 
-  Mic, 
-  MicOff, 
-  PhoneOff, 
-  PhoneCall, 
-  Send, 
-  Clipboard, 
+import {
+  Video,
+  VideoOff,
+  Mic,
+  MicOff,
+  PhoneOff,
+  PhoneCall,
+  Send,
+  Clipboard,
   CheckCircle2,
   MessageSquare,
   Users
@@ -39,13 +39,13 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  const connRef = useRef<any>(null);
-  const callRef = useRef<any>(null);
+  const connRef = useRef<DataConnection | null>(null);
+  const callRef = useRef<MediaConnection | null>(null);
 
   // Initialize Peer
   useEffect(() => {
     const newPeer = new Peer();
-    
+
     newPeer.on('open', (id) => {
       setPeerState(prev => ({ ...prev, id }));
     });
@@ -74,15 +74,28 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const setupConnectionHandlers = (conn: any) => {
-    conn.on('data', (data: any) => {
-      if (data.type === 'chat') {
-        setMessages(prev => [...prev, {
-          id: Math.random().toString(36),
-          sender: 'peer',
-          text: data.text,
-          timestamp: Date.now()
-        }]);
+  const setupConnectionHandlers = (conn: DataConnection) => {
+    conn.on('data', (data: unknown) => {
+      // Validate incoming message structure and content
+      if (
+        data &&
+        typeof data === 'object' &&
+        'type' in data &&
+        (data as { type: string }).type === 'chat' &&
+        'text' in data &&
+        typeof (data as { text: unknown }).text === 'string'
+      ) {
+        const text = (data as { text: string }).text;
+        // Sanitize: limit length and trim
+        const sanitizedText = text.slice(0, 5000).trim();
+        if (sanitizedText) {
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            sender: 'peer',
+            text: sanitizedText,
+            timestamp: Date.now()
+          }]);
+        }
       }
     });
     conn.on('close', () => {
@@ -90,7 +103,7 @@ const App: React.FC = () => {
     });
   };
 
-  const setupCallHandlers = (call: any) => {
+  const setupCallHandlers = (call: MediaConnection) => {
     callRef.current = call;
     call.on('stream', (remoteStream: MediaStream) => {
       setMediaState(prev => ({ ...prev, remoteStream }));
@@ -102,11 +115,11 @@ const App: React.FC = () => {
 
   const startCall = async (remoteId: string) => {
     if (!peer || !remoteId) return;
-    
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setMediaState(prev => ({ ...prev, localStream: stream }));
-      
+
       const conn = peer.connect(remoteId);
       connRef.current = conn;
       setupConnectionHandlers(conn);
@@ -124,7 +137,7 @@ const App: React.FC = () => {
     if (connRef.current && text.trim()) {
       connRef.current.send({ type: 'chat', text });
       setMessages(prev => [...prev, {
-        id: Math.random().toString(36),
+        id: crypto.randomUUID(),
         sender: 'me',
         text,
         timestamp: Date.now()
@@ -134,10 +147,10 @@ const App: React.FC = () => {
 
   const toggleMedia = (type: 'audio' | 'video') => {
     if (mediaState.localStream) {
-      const track = type === 'audio' 
-        ? mediaState.localStream.getAudioTracks()[0] 
+      const track = type === 'audio'
+        ? mediaState.localStream.getAudioTracks()[0]
         : mediaState.localStream.getVideoTracks()[0];
-      
+
       if (track) {
         track.enabled = !track.enabled;
         setMediaState(prev => ({ ...prev, [type]: track.enabled }));
@@ -164,9 +177,9 @@ const App: React.FC = () => {
 
   if (!peerState.connected && !peerState.remotePeerId) {
     return (
-      <WelcomeScreen 
-        peerId={peerState.id} 
-        onJoin={startCall} 
+      <WelcomeScreen
+        peerId={peerState.id}
+        onJoin={startCall}
         onCopy={copyId}
         copyFeedback={copyFeedback}
       />
@@ -177,27 +190,26 @@ const App: React.FC = () => {
     <div className="flex flex-col lg:flex-row h-screen bg-slate-950 overflow-hidden">
       <div className="flex-1 relative flex items-center justify-center p-4 bg-black/20">
         <div className="w-full h-full max-w-6xl aspect-video relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-          <VideoWindow 
+          <VideoWindow
             localStream={mediaState.localStream}
             remoteStream={mediaState.remoteStream}
-            isLocalMuted={!mediaState.audio}
             isLocalVideoOff={!mediaState.video}
           />
-          
+
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 shadow-xl">
-            <button 
+            <button
               onClick={() => toggleMedia('audio')}
               className={`p-3 rounded-full transition-all ${mediaState.audio ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-500 hover:bg-red-600'}`}
             >
               {mediaState.audio ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
             </button>
-            <button 
+            <button
               onClick={() => toggleMedia('video')}
               className={`p-3 rounded-full transition-all ${mediaState.video ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-500 hover:bg-red-600'}`}
             >
               {mediaState.video ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
             </button>
-            <button 
+            <button
               onClick={endCall}
               className="p-3 rounded-full bg-red-600 hover:bg-red-700 transition-all transform hover:scale-110"
             >
@@ -213,7 +225,7 @@ const App: React.FC = () => {
       </div>
 
       <div className="w-full lg:w-96 flex flex-col bg-slate-900 border-l border-white/10 shadow-2xl">
-        <ChatSidebar 
+        <ChatSidebar
           messages={messages}
           onSendMessage={sendMessage}
         />

@@ -5,7 +5,6 @@ import { User, VideoOff } from 'lucide-react';
 interface VideoWindowProps {
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
-  isLocalMuted: boolean;
   isLocalVideoOff: boolean;
 }
 
@@ -30,10 +29,10 @@ const VideoWindow: React.FC<VideoWindowProps> = ({ localStream, remoteStream, is
       {/* Remote Video (Main) */}
       <div className="w-full h-full relative overflow-hidden">
         {remoteStream ? (
-          <video 
+          <video
             ref={remoteRef}
-            autoPlay 
-            playsInline 
+            autoPlay
+            playsInline
             className="w-full h-full object-cover gpu-accelerated"
           />
         ) : (
@@ -53,11 +52,11 @@ const VideoWindow: React.FC<VideoWindowProps> = ({ localStream, remoteStream, is
             <VideoOff className="w-6 h-6 text-slate-400" />
           </div>
         ) : (
-          <video 
+          <video
             ref={localRef}
-            autoPlay 
-            muted 
-            playsInline 
+            autoPlay
+            muted
+            playsInline
             className="w-full h-full object-cover mirror-x gpu-accelerated"
           />
         )}
